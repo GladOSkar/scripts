@@ -1,5 +1,13 @@
 #!/bin/bash
 
+###
+#
+# Largely based on
+# https://github.com/jabas06/l2tp-ipsec-vpn-client
+# Look there for instructions on the config files!
+#
+###
+
 # Create run dir manually because it can't so that by itself
 sudo mkdir -p /var/run/xl2tpd
 
@@ -16,11 +24,18 @@ echo "ipsec start code: $?"
 sleep 2
 
 # connect ipsec, then l2tp
+
+# Needs
+# - /etc/ipsec.conf
+# - /etc/ipsec.secrets
 sudo ipsec up L2TP-PSK
 echo "ipsec up code: $?"
 
 sleep 2
 
+# Needs
+# - /etc/xl2tpd/xl2tpd.conf
+# - /etc/ppp/options.l2tpd.client
 echo "c BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
 echo "xl2tpd startup log:"
 
