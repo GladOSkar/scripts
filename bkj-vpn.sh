@@ -33,14 +33,17 @@ echo "ipsec up code: $?"
 
 sleep 2
 
+# Read log for 4 seconds
+echo "xl2tpd startup log:"
+timeout 4 tail -f /var/log/xl2tpd.log &
+
 # Needs
 # - /etc/xl2tpd/xl2tpd.conf
 # - /etc/ppp/options.l2tpd.client
-echo "c BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
-echo "xl2tpd startup log:"
+#echo "c BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
+sudo xl2tpd-control connect BKJVPN
 
-# Read log for 4 seconds
-tail -f /var/log/xl2tpd.log | timeout 4 head -n 1000
+sleep 4
 
 # Set up subnet routes
 sudo ip route add 192.168.55.0/24 dev ppp0
@@ -59,10 +62,12 @@ done
 
 echo 'Disconnecting...'
 
-echo "d BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
-echo "xl2tpd shutdown log:"
 # Read log for 4 seconds
-tail -f /var/log/xl2tpd.log | timeout 4 head -n 1000
+echo "xl2tpd shutdown log:"
+timeout 4 tail -f /var/log/xl2tpd.log &
+
+#echo "d BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
+sudo xl2tpd-control disconnect BKJVPN
 
 sleep 4
 
