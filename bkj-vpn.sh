@@ -11,7 +11,9 @@
 # Create run dir manually because it can't so that by itself
 sudo mkdir -p /var/run/xl2tpd
 
-# start all necessary components
+echo ""
+echo "Starting services..."
+
 sudo systemctl restart strongswan
 echo "strongswan start code: $?"
 
@@ -28,14 +30,17 @@ sleep 2
 # Needs
 # - /etc/ipsec.conf
 # - /etc/ipsec.secrets
+echo ""
+echo "ipsec startup log:"
 sudo ipsec up L2TP-PSK
 echo "ipsec up code: $?"
 
 sleep 2
 
 # Read log for 4 seconds
+echo ""
 echo "xl2tpd startup log:"
-timeout 4 tail -f /var/log/xl2tpd.log &
+timeout 4 tail -f -n 0 /var/log/xl2tpd.log &
 
 # Needs
 # - /etc/xl2tpd/xl2tpd.conf
@@ -50,9 +55,12 @@ sudo ip route add 192.168.55.0/24 dev ppp0
 sudo ip route add 192.168.99.0/24 dev ppp0
 
 # Show routes
+echo ""
 echo "Routes set up:"
 ip route show dev ppp0
 
+echo ""
+echo "Connected!"
 LINE=''
 while [[ $LINE != 'disconnect' ]]
 do
@@ -63,18 +71,24 @@ done
 echo 'Disconnecting...'
 
 # Read log for 4 seconds
+echo ""
 echo "xl2tpd shutdown log:"
-timeout 4 tail -f /var/log/xl2tpd.log &
+timeout 2 tail -f -n 0 /var/log/xl2tpd.log &
 
 #echo "d BKJVPN" | sudo tee /var/run/xl2tpd/l2tp-control
 sudo xl2tpd-control disconnect BKJVPN
 
-sleep 4
+sleep 2
 
+echo ""
+echo "ipsec shutdown log:"
 sudo ipsec down L2TP-PSK
 echo "ipsec down code: $?"
 
 sleep 1
+
+echo ""
+echo "Stopping services..."
 
 sudo ipsec stop
 echo "ipsec stop code: $?"
