@@ -5,13 +5,8 @@ $HOME/Scripts/enable-external-monitor.sh
 
 if [[ $1 == "--login" ]]
 then
-
 	# Lock screen
 	$HOME/Scripts/locker.sh
-
-	# Ba-da-dada-da-dam! For the win XP flashbacks
-	paplay "$HOME/Scripts/WinXPStartupSound.ogg" &
-
 fi
 
 xinput set-prop 'AlpsPS/2 ALPS DualPoint TouchPad' 'libinput Tapping Enabled' 1
@@ -58,3 +53,17 @@ kitty --name dropdown &!
 
 killall unclutter
 unclutter -b --timeout 2 --jitter 64 &
+
+killall ssh-agent
+ssh-agent -s | tee $HOME/.ssh/ssh-agent-vars.bash
+source $HOME/.ssh/ssh-agent-vars.bash
+echo "set -gx SSH_AUTH_SOCK ${SSH_AUTH_SOCK}" | tee $HOME/.ssh/ssh-agent-vars.fish
+echo "set -gx SSH_AGENT_PID ${SSH_AGENT_PID}" | tee -a $HOME/.ssh/ssh-agent-vars.fish
+
+if [[ $1 == "--login" ]]
+then
+	# Delay until sound works?
+	sleep 2
+	# Ba-da-dada-da-dam! For the win XP flashbacks
+	paplay "$HOME/Scripts/WinXPStartupSound.ogg" &
+fi
